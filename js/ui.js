@@ -29,6 +29,29 @@ function coincideBusqueda(c) {
   );
 }
 
+function fmtFecha(iso) {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+// SCRUM-13/14/15/16: resumen de los datos de la caja dentro de la tarjeta.
+function resumenCaja(c) {
+  const melada = c.melado === "Sí"
+    ? `<span class="pill pill-honey">Melada · ${Number(c.miel || 0).toFixed(1)} kg</span>`
+    : "";
+  const obs = c.observaciones
+    ? `<div class="caja-obs">${c.observaciones.replace(/</g, "&lt;")}</div>`
+    : "";
+  return `
+    ${melada}
+    <div class="caja-datos">
+      <span>Alzas: <b>${c.alzas || 0}</b></span>
+      <span>Última revisión: <b>${fmtFecha(c.fechaRevision)}</b></span>
+    </div>
+    ${obs}`;
+}
+
 function badgeEstado(estado) {
   if (estado === "Con abejas") return `<span class="pill pill-on">Con abejas</span>`;
   if (estado === "Sin abejas") return `<span class="pill pill-off">Sin abejas</span>`;
@@ -54,7 +77,9 @@ function renderLista() {
         <div class="caja-num">Caja ${pad2(c.num)}</div>
         <div class="caja-info">
           ${badgeEstado(c.estado)}
+          ${resumenCaja(c)}
         </div>
+        <button class="btn-editar" data-num="${c.num}">Editar datos</button>
         <div class="caja-actions">
           <button class="btn-chip ${c.estado === "Con abejas" ? "active" : ""}" data-num="${c.num}" data-estado="Con abejas">Con abejas</button>
           <button class="btn-chip ${c.estado === "Sin abejas" ? "active" : ""}" data-num="${c.num}" data-estado="Sin abejas">Sin abejas</button>
@@ -62,6 +87,14 @@ function renderLista() {
       </div>`
     )
     .join("");
+
+  // Abrir el editor de la caja.
+  cont.querySelectorAll(".btn-editar").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const caja = cajas.find((c) => c.num === Number(btn.dataset.num));
+      if (caja) abrirEditor(caja);
+    });
+  });
 
   // SCRUM-12: marcar estado al tocar los chips.
   cont.querySelectorAll(".btn-chip").forEach((btn) => {
@@ -71,6 +104,12 @@ function renderLista() {
       const caja = cajas.find((c) => c.num === num);
       if (!caja || caja.estado === estado) return;
       caja.estado = estado;
+      // Una caja sin abejas no tiene alzas ni miel.
+      if (estado === "Sin abejas") {
+        caja.alzas = 0;
+        caja.melado = "No";
+        caja.miel = 0;
+      }
       btn.disabled = true;
       try {
         await guardarCaja(caja);

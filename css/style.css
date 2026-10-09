@@ -1,0 +1,154 @@
+:root {
+  --bg: #241708;
+  --surface: #32220E;
+  --text: #F4E9D0;
+  --text-muted: #B9A47C;
+  --honey: #E3A53B;
+  --green: #8FAE72;
+  --clay: #C1613D;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.status-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+
+.status-screen h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.status-badge {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+
+.status-badge.ok { background: #3A4A2E; color: var(--green); }
+.status-badge.error { background: #492417; color: var(--clay); }
+.status-badge.loading { background: #3D2A12; color: var(--honey); }
+
+.spin {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 3px solid #4A331A;
+  border-top-color: var(--honey);
+  animation: sp 0.8s linear infinite;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
+
+.muted { color: var(--text-muted); font-size: 13px; max-width: 280px; }
+
+/* ---- Pantalla principal ---- */
+.app-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #4A331A80;
+}
+.app-header h1 { margin: 0; font-size: 22px; }
+
+main { padding: 16px 20px 90px; max-width: 480px; margin: 0 auto; }
+
+.lista-cajas { display: flex; flex-direction: column; gap: 10px; }
+
+.caja-card {
+  background: var(--surface);
+  border: 1px solid #4A331A80;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.caja-num { font-weight: 700; font-size: 16px; }
+
+.pill {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.pill-on { background: #3A4A2E; color: var(--green); }
+.pill-off { background: #3A3226; color: var(--text-muted); }
+.pill-none { background: #392C1B; color: var(--text-muted); }
+
+.caja-actions { display: flex; gap: 8px; }
+
+.btn-chip {
+  flex: 1;
+  background: #3D2A12;
+  border: 1px solid #4A331A80;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.btn-chip.active { background: var(--honey); color: #241708; border-color: var(--honey); }
+.btn-chip:disabled { opacity: 0.6; }
+
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: var(--honey);
+  color: #241708;
+  border: none;
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.fab:disabled { opacity: 0.6; }
+
+/* ---- Buscador y filtros (SCRUM-17) ---- */
+.buscador {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid #4A331A80;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  margin-bottom: 10px;
+}
+.buscador::placeholder { color: var(--text-muted); }
+.buscador:focus { outline: 2px solid var(--honey); outline-offset: 1px; }
+
+.filtros { display: flex; gap: 8px; margin-bottom: 14px; }
+
+.chip-filtro {
+  background: var(--surface);
+  border: 1px solid #4A331A80;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.chip-filtro.active { background: #4A331A; color: var(--honey); border-color: var(--honey); }

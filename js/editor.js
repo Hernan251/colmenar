@@ -15,6 +15,11 @@ function hoyISO() {
 
 function abrirEditor(caja) {
   editando = JSON.parse(JSON.stringify(caja));
+  // Regla: sin alzas no se puede melar.
+  if ((Number(editando.alzas) || 0) < 1 && editando.melado === "Sí") {
+    editando.melado = "No";
+    editando.miel = 0;
+  }
   document.getElementById("sheet-title").textContent = `Caja ${pad2(caja.num)}`;
   renderEditor();
   document.getElementById("backdrop").classList.add("open");
@@ -30,6 +35,8 @@ function cerrarEditor() {
 function renderEditor() {
   const c = editando;
   const sinAbejas = c.estado === "Sin abejas";
+  const sinAlzas = (Number(c.alzas) || 0) < 1;
+  const noPuedeMelar = sinAbejas || sinAlzas;
   const mielBloqueada = c.melado !== "Sí";
 
   document.getElementById("sheet-body").innerHTML = `
@@ -46,9 +53,10 @@ function renderEditor() {
     <div class="campo ${sinAbejas ? "bloqueado" : ""}">
       <label>¿Ya se meló?</label>
       <div class="seg">
-        <button type="button" class="seg-btn ${c.melado === "Sí" ? "active" : ""}" data-melado="Sí" ${sinAbejas ? "disabled" : ""}>Sí</button>
+        <button type="button" class="seg-btn ${c.melado === "Sí" ? "active" : ""}" data-melado="Sí" ${noPuedeMelar ? "disabled" : ""}>Sí</button>
         <button type="button" class="seg-btn ${c.melado !== "Sí" ? "active" : ""}" data-melado="No" ${sinAbejas ? "disabled" : ""}>No</button>
       </div>
+      ${!sinAbejas && sinAlzas ? `<div class="nota">🔒 Para melar la caja tiene que tener al menos 1 alza.</div>` : ""}
     </div>
 
     <div class="campo ${mielBloqueada ? "bloqueado" : ""}">
@@ -71,17 +79,23 @@ function renderEditor() {
   if (!sinAbejas) {
     document.getElementById("alzas-menos").addEventListener("click", () => {
       editando.alzas = Math.max(0, (Number(editando.alzas) || 0) - 1);
-      document.getElementById("alzas-val").textContent = editando.alzas;
+      // Regla: sin alzas no se puede melar.
+      if (editando.alzas < 1 && editando.melado === "Sí") {
+        editando.melado = "No";
+        editando.miel = 0;
+      }
+      renderEditor();
     });
     document.getElementById("alzas-mas").addEventListener("click", () => {
       editando.alzas = (Number(editando.alzas) || 0) + 1;
-      document.getElementById("alzas-val").textContent = editando.alzas;
+      renderEditor();
     });
   }
 
   document.querySelectorAll(".seg-btn").forEach((b) =>
     b.addEventListener("click", () => {
       if (sinAbejas) return;
+      if (b.dataset.melado === "Sí" && sinAlzas) return;
       editando.melado = b.dataset.melado;
       if (editando.melado !== "Sí") editando.miel = 0;
       renderEditor();
@@ -107,6 +121,10 @@ async function guardarEditor() {
     c.alzas = 0;
     c.melado = "No";
     c.miel = 0;
+  }
+  if (c.melado === "Sí" && (Number(c.alzas) || 0) < 1) {
+    alert("Una caja sin alzas no puede estar melada. Agregá al menos 1 alza o marcá \"No\" en \"¿Ya se meló?\".");
+    return;
   }
   if (Number.isNaN(Number(c.miel)) || Number(c.miel) < 0) {
     alert("La cantidad de miel tiene que ser un número válido (por ejemplo 2.5).");

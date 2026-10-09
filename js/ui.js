@@ -48,6 +48,7 @@ function resumenCaja(c) {
     <div class="caja-datos">
       <span>Alzas: <b>${c.alzas || 0}</b></span>
       <span>Última revisión: <b>${fmtFecha(c.fechaRevision)}</b></span>
+      <span>${c.latitud != null && c.longitud != null ? "📍 GPS registrado" : "Sin ubicación GPS"}</span>
     </div>
     ${obs}`;
 }

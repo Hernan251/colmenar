@@ -5,6 +5,18 @@
 // SCRUM-16: observaciones libres.
 
 let editando = null;
+let gpsMsg = null; // { tipo: "ok" | "error", texto: "..." }
+let gpsBuscando = false;
+
+function fmtFechaHora(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}/${mm}/${d.getFullYear()} ${hh}:${mi}`;
+}
 
 function hoyISO() {
   const d = new Date();
@@ -15,6 +27,8 @@ function hoyISO() {
 
 function abrirEditor(caja) {
   editando = JSON.parse(JSON.stringify(caja));
+  gpsMsg = null;
+  gpsBuscando = false;
   // Regla: sin alzas no se puede melar.
   if ((Number(editando.alzas) || 0) < 1 && editando.melado === "Sí") {
     editando.melado = "No";
@@ -71,6 +85,23 @@ function renderEditor() {
     </div>
 
     <div class="campo">
+      <label>📍 Ubicación de la colmena</label>
+      <div class="gps-box">
+        ${tieneGPS(c)
+          ? `<div class="gps-coords">
+               <div>Latitud: <b>${c.latitud.toFixed(6)}</b></div>
+               <div>Longitud: <b>${c.longitud.toFixed(6)}</b></div>
+               <div class="gps-fecha">Última ubicación registrada: ${fmtFechaHora(c.ubicacionFecha)}</div>
+             </div>`
+          : `<div class="gps-coords gps-vacia">Sin ubicación GPS</div>`}
+        <button type="button" id="btn-gps" class="btn-gps" ${gpsBuscando ? "disabled" : ""}>
+          ${gpsBuscando ? "Obteniendo ubicación…" : tieneGPS(c) ? "📍 Actualizar ubicación" : "📍 Obtener ubicación"}
+        </button>
+        ${gpsMsg ? `<div class="gps-msg ${gpsMsg.tipo}">${gpsMsg.texto}</div>` : ""}
+      </div>
+    </div>
+
+    <div class="campo">
       <label>Observaciones</label>
       <textarea id="f-obs" placeholder="Reina nueva, colonia débil, se agregó alimento…">${c.observaciones || ""}</textarea>
     </div>
@@ -108,8 +139,76 @@ function renderEditor() {
       editando.miel = v === "" ? 0 : Number(v);
     });
   }
+  document.getElementById("btn-gps").addEventListener("click", obtenerUbicacion);
   document.getElementById("f-revision").addEventListener("change", (e) => (editando.fechaRevision = e.target.value));
   document.getElementById("f-obs").addEventListener("input", (e) => (editando.observaciones = e.target.value));
+}
+
+function tieneGPS(c) {
+  return c.latitud != null && c.longitud != null;
+}
+
+// SCRUM-18/19/20/22/23/24/25: obtener la ubicación solo cuando se toca el botón.
+function obtenerUbicacion() {
+  if (gpsBuscando || !editando) return;
+
+  if (!("geolocation" in navigator)) {
+    gpsMsg = { tipo: "error", texto: "Este navegador no permite obtener la ubicación. Probá con Chrome o Safari actualizado." };
+    renderEditor();
+    return;
+  }
+  if (!window.isSecureContext) {
+    gpsMsg = { tipo: "error", texto: "La ubicación solo funciona en páginas seguras (https). Abrí la app desde su dirección publicada." };
+    renderEditor();
+    return;
+  }
+
+  const num = editando.num;
+  gpsBuscando = true;
+  gpsMsg = null;
+  renderEditor();
+
+  // El navegador pide permiso acá, recién al tocar el botón.
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const fecha = new Date().toISOString();
+      try {
+        const guardada = await guardarUbicacion(num, lat, lng, fecha);
+        const i = cajas.findIndex((x) => x.num === num);
+        if (i !== -1) {
+          cajas[i].latitud = guardada.latitud;
+          cajas[i].longitud = guardada.longitud;
+          cajas[i].ubicacionFecha = guardada.ubicacionFecha;
+        }
+        if (editando && editando.num === num) {
+          editando.latitud = guardada.latitud;
+          editando.longitud = guardada.longitud;
+          editando.ubicacionFecha = guardada.ubicacionFecha;
+          gpsMsg = { tipo: "ok", texto: `✅ Ubicación registrada correctamente (precisión aprox. ${Math.round(pos.coords.accuracy)} m).` };
+        }
+        renderLista();
+      } catch (e) {
+        console.error("No se pudo guardar la ubicación", e);
+        gpsMsg = { tipo: "error", texto: "Se obtuvo la ubicación pero no se pudo guardar. Revisá tu conexión e intentá de nuevo." };
+      }
+      gpsBuscando = false;
+      if (editando) renderEditor();
+    },
+    (err) => {
+      gpsBuscando = false;
+      if (err.code === 1) {
+        gpsMsg = { tipo: "error", texto: "Para registrar la ubicación tenés que permitir el acceso a la ubicación en tu navegador. Tocá el candado junto a la dirección, permití la ubicación y volvé a intentar." };
+      } else if (err.code === 3) {
+        gpsMsg = { tipo: "error", texto: "Tardó demasiado en obtener la ubicación. Revisá que el GPS esté activado y probá de nuevo, preferentemente al aire libre." };
+      } else {
+        gpsMsg = { tipo: "error", texto: "No se pudo determinar tu ubicación. Revisá que el GPS esté activado e intentá de nuevo." };
+      }
+      if (editando) renderEditor();
+    },
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+  );
 }
 
 async function guardarEditor() {

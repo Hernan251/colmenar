@@ -13,6 +13,9 @@ function rowToCaja(r) {
     fechaRevision: r.fecha_revision || "",
     ubicacion: r.ubicacion || "",
     observaciones: r.observaciones || "",
+    latitud: r.latitud != null ? Number(r.latitud) : null,
+    longitud: r.longitud != null ? Number(r.longitud) : null,
+    ubicacionFecha: r.ubicacion_fecha || null,
   };
 }
 
@@ -44,6 +47,9 @@ function blankCaja(num) {
     fechaRevision: "",
     ubicacion: "",
     observaciones: "",
+    latitud: null,
+    longitud: null,
+    ubicacionFecha: null,
   };
 }
 
@@ -71,4 +77,23 @@ async function guardarCaja(caja) {
 function proximoNumero(cajas) {
   const max = cajas.reduce((m, c) => Math.max(m, c.num), 0);
   return max + 1;
+}
+
+// SCRUM-20 / SCRUM-23: guardar (o actualizar) solo las coordenadas GPS de una caja.
+// Se usa PATCH para no pisar otros datos que estén sin guardar en el editor.
+async function guardarUbicacion(num, latitud, longitud, fechaISO) {
+  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
+    method: "PATCH",
+    headers: sbHeaders({ Prefer: "return=representation" }),
+    body: JSON.stringify({
+      latitud: latitud,
+      longitud: longitud,
+      ubicacion_fecha: fechaISO,
+      updated_at: new Date().toISOString(),
+    }),
+  });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const data = await res.json();
+  if (!data.length) throw new Error("La caja no existe");
+  return rowToCaja(data[0]);
 }

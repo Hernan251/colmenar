@@ -78,10 +78,21 @@ function renderMapa(focusNum) {
   if (!mapa) {
     // Vista inicial: Paraguay, hasta que haya cajas con ubicación.
     mapa = L.map("mapa").setView([-25.3, -57.6], 6);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // Capa satelital (Esri World Imagery) y capa de calles (OpenStreetMap).
+    const satelite = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      {
+        maxZoom: 19,
+        maxNativeZoom: 18,
+        attribution: "Imágenes &copy; Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS",
+      }
+    );
+    const calles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(mapa);
+    });
+    satelite.addTo(mapa); // por defecto: satélite
+    L.control.layers({ "Satélite": satelite, "Calles": calles }, null, { position: "topright" }).addTo(mapa);
     capaMarcadores = L.layerGroup().addTo(mapa);
   }
 

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colmenar</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,8 +19,13 @@
 <div id="app" class="app" style="display:none;">
   <header class="app-header">
     <h1>🐝 Colmenar</h1>
+    <nav class="tabs">
+      <button class="tab active" data-vista="cajas">Cajas</button>
+      <button class="tab" data-vista="mapa">Mapa</button>
+    </nav>
   </header>
   <main>
+    <div id="view-cajas">
     <input id="buscador" class="buscador" type="text" placeholder="Buscar caja o ubicación…">
     <div class="filtros">
       <button class="chip-filtro active" data-f="todas">Todas</button>
@@ -27,6 +33,13 @@
       <button class="chip-filtro" data-f="sin">Sin abejas</button>
     </div>
     <div id="lista-cajas" class="lista-cajas"></div>
+    </div>
+
+    <div id="view-mapa" style="display:none;">
+      <div id="mapa-aviso" class="muted mapa-aviso"></div>
+      <div id="mapa"></div>
+      <div id="mapa-sin-gps" class="sin-gps"></div>
+    </div>
   </main>
   <button id="btn-agregar" class="fab" aria-label="Agregar caja">+</button>
 </div>
@@ -44,10 +57,12 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/supabaseClient.js"></script>
 <script src="js/cajas.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/editor.js"></script>
+<script src="js/mapa.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

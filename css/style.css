@@ -255,3 +255,28 @@ main { padding: 16px 20px 90px; max-width: 480px; margin: 0 auto; }
 .gps-msg { font-size: 12.5px; line-height: 1.45; padding: 9px 11px; border-radius: 9px; }
 .gps-msg.ok { background: #3A4A2E; color: var(--green); }
 .gps-msg.error { background: #492417; color: #E8A58C; }
+
+/* ---- Pestañas y mapa (SCRUM-26..30) ---- */
+.tabs { display: flex; gap: 6px; margin-top: 12px; background: #3D2A12; border-radius: 999px; padding: 4px; }
+.tab { flex: 1; border: none; background: transparent; color: var(--text-muted); font-family: inherit; font-weight: 600; font-size: 14px; padding: 9px 0; border-radius: 999px; cursor: pointer; }
+.tab.active { background: var(--honey); color: #241708; }
+
+#mapa { height: calc(100vh - 300px); min-height: 320px; border-radius: 14px; border: 1px solid #4A331A80; position: relative; z-index: 0; isolation: isolate; }
+.mapa-aviso { margin-bottom: 8px; }
+.mapa-aviso:empty { display: none; }
+
+.marcador { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.5); color: #241708; font-family: system-ui, sans-serif; }
+.marcador-con { background: #8FAE72; }
+.marcador-sin { background: #B9A47C; }
+.marcador-nd { background: #E3A53B; }
+
+.popup-caja { font-size: 13px; line-height: 1.6; color: #241708; font-family: system-ui, sans-serif; }
+.popup-titulo { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+
+.sin-gps { margin-top: 14px; }
+.sin-gps:empty { display: none; }
+.sin-gps-titulo { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.sin-gps-lista { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-sin-gps { background: #392C1B; border: 1px dashed var(--text-muted); color: var(--text-muted); font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+
+.btn-mapa { background: transparent; color: var(--honey); border: 1px solid var(--honey); border-radius: 10px; padding: 11px 0; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }

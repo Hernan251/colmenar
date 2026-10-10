@@ -97,6 +97,7 @@ function renderEditor() {
         <button type="button" id="btn-gps" class="btn-gps" ${gpsBuscando ? "disabled" : ""}>
           ${gpsBuscando ? "Obteniendo ubicación…" : tieneGPS(c) ? "📍 Actualizar ubicación" : "📍 Obtener ubicación"}
         </button>
+        ${tieneGPS(c) ? `<button type="button" id="btn-ver-mapa" class="btn-mapa">🗺️ Ver en mapa</button>` : ""}
         ${gpsMsg ? `<div class="gps-msg ${gpsMsg.tipo}">${gpsMsg.texto}</div>` : ""}
       </div>
     </div>
@@ -140,6 +141,14 @@ function renderEditor() {
     });
   }
   document.getElementById("btn-gps").addEventListener("click", obtenerUbicacion);
+  const btnMapa = document.getElementById("btn-ver-mapa");
+  if (btnMapa) {
+    btnMapa.addEventListener("click", () => {
+      const num = editando.num;
+      cerrarEditor();
+      mostrarVista("mapa", num);
+    });
+  }
   document.getElementById("f-revision").addEventListener("change", (e) => (editando.fechaRevision = e.target.value));
   document.getElementById("f-obs").addEventListener("input", (e) => (editando.observaciones = e.target.value));
 }

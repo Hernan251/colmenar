@@ -229,8 +229,11 @@ function obtenerUbicacion() {
 async function eliminarDesdeEditor() {
   const c = editando;
   if (!c) return;
-  const confirmar = confirm(
-    `¿Eliminar la Caja ${pad2(c.num)}?\n\nSe borran todos sus datos (estado, alzas, miel, revisión, ubicación GPS y observaciones). Esta acción no se puede deshacer.`
+  const confirmar = await confirmarModal(
+    `Eliminar la Caja ${pad2(c.num)}`,
+    "Se borran todos sus datos (estado, alzas, miel, revisión, ubicación GPS y observaciones). Esta acción no se puede deshacer.",
+    "Eliminar",
+    true
   );
   if (!confirmar) return;
 
@@ -244,7 +247,7 @@ async function eliminarDesdeEditor() {
     renderLista();
   } catch (err) {
     console.error("No se pudo eliminar la caja", err);
-    alert("No se pudo eliminar la caja. Revisá tu conexión e intentá de nuevo.");
+    avisar("No se pudo eliminar la caja. Revisá tu conexión e intentá de nuevo.");
     btn.disabled = false;
   }
 }
@@ -260,11 +263,11 @@ async function guardarEditor() {
     c.miel = 0;
   }
   if (c.melado === "Sí" && (Number(c.alzas) || 0) < 1) {
-    alert("Una caja sin alzas no puede estar melada. Agregá al menos 1 alza o marcá \"No\" en \"¿Ya se meló?\".");
+    avisar("Una caja sin alzas no puede estar melada. Agregá al menos 1 alza o marcá \"No\" en \"¿Ya se meló?\".");
     return;
   }
   if (Number.isNaN(Number(c.miel)) || Number(c.miel) < 0) {
-    alert("La cantidad de miel tiene que ser un número válido (por ejemplo 2.5).");
+    avisar("La cantidad de miel tiene que ser un número válido (por ejemplo 2.5).");
     return;
   }
 
@@ -278,7 +281,7 @@ async function guardarEditor() {
     renderLista();
   } catch (e) {
     console.error("No se pudo guardar la caja", e);
-    alert("No se pudo guardar. Revisá tu conexión e intentá de nuevo.");
+    avisar("No se pudo guardar. Revisá tu conexión e intentá de nuevo.");
   } finally {
     btn.disabled = false;
   }

@@ -117,7 +117,7 @@ function renderLista() {
         renderLista();
       } catch (e) {
         console.error("No se pudo guardar el estado", e);
-        alert("No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.");
+        avisar("No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.", "No se pudo guardar");
       }
     });
   });
@@ -125,17 +125,35 @@ function renderLista() {
 
 // SCRUM-11: agregar una caja nueva con el siguiente número disponible.
 async function agregarCaja() {
+  // SCRUM-42: se puede elegir el número; por defecto propone el primero libre.
+  const num = await abrirModal({
+    titulo: "Agregar caja",
+    mensaje: "¿Qué número tiene la caja nueva? Te propongo el primero que está libre.",
+    campoNumero: { valor: primerNumeroLibre(cajas) },
+    confirmar: "Agregar",
+    cancelar: "Cancelar",
+    validar: (n) => {
+      if (!Number.isInteger(n) || n < 1) return "Escribí un número entero mayor a 0.";
+      if (n > 9999) return "El número máximo es 9999.";
+      if (cajas.some((c) => c.num === n)) return `La caja ${pad2(n)} ya existe. Elegí otro número.`;
+      return null;
+    },
+  });
+  if (num === null) return;
+
   const btn = document.getElementById("btn-agregar");
   btn.disabled = true;
   try {
-    const num = proximoNumero(cajas);
-    const nueva = blankCaja(num);
-    const guardada = await guardarCaja(nueva);
+    const guardada = await crearCaja(blankCaja(num));
     cajas.push(guardada);
     renderLista();
   } catch (e) {
     console.error("No se pudo agregar la caja", e);
-    alert("No se pudo agregar la caja. Revisá tu conexión e intentá de nuevo.");
+    if (e.message === "DUPLICADA") {
+      avisar(`La caja ${pad2(num)} ya existe en la base de datos. Recargá la página para ver la lista actualizada.`);
+    } else {
+      avisar("No se pudo agregar la caja. Revisá tu conexión e intentá de nuevo.", "No se pudo agregar");
+    }
   } finally {
     btn.disabled = false;
   }

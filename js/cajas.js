@@ -108,3 +108,24 @@ async function eliminarCaja(num) {
   const data = await res.json();
   if (!data.length) throw new Error("La caja no existe");
 }
+
+// SCRUM-42: crear una caja nueva SIN pisar una existente (si el número ya está en uso, falla).
+async function crearCaja(caja) {
+  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}`, {
+    method: "POST",
+    headers: sbHeaders({ Prefer: "return=representation" }),
+    body: JSON.stringify([cajaToRow(caja)]),
+  });
+  if (res.status === 409) throw new Error("DUPLICADA");
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const data = await res.json();
+  return rowToCaja(data[0]);
+}
+
+// SCRUM-42: el primer número libre (rellena los huecos de cajas eliminadas).
+function primerNumeroLibre(lista) {
+  const usados = new Set(lista.map((c) => c.num));
+  let n = 1;
+  while (usados.has(n)) n++;
+  return n;
+}

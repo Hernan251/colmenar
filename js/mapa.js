@@ -7,6 +7,11 @@
 //
 // Usa Leaflet + OpenStreetMap (gratis, sin clave).
 
+// SCRUM-43: nivel de zoom hasta el que hay foto satelital real en esta zona.
+// Más allá, el mapa agranda esa última imagen en vez de mostrar "Map data not yet available".
+// Si todavía aparece el cartel, bajá este número (16) y publicá de nuevo.
+const ZOOM_MAX_IMAGEN_SATELITE = 17;
+
 let mapa = null;
 let capaMarcadores = null;
 
@@ -83,7 +88,7 @@ function renderMapa(focusNum) {
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       {
         maxZoom: 19,
-        maxNativeZoom: 18,
+        maxNativeZoom: ZOOM_MAX_IMAGEN_SATELITE,
         attribution: "Imágenes &copy; Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS",
       }
     );

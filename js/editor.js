@@ -106,6 +106,10 @@ function renderEditor() {
       <label>Observaciones</label>
       <textarea id="f-obs" placeholder="Reina nueva, colonia débil, se agregó alimento…">${c.observaciones || ""}</textarea>
     </div>
+
+    <div class="campo zona-eliminar">
+      <button type="button" id="btn-eliminar" class="btn-eliminar">🗑️ Eliminar esta caja</button>
+    </div>
   `;
 
   if (!sinAbejas) {
@@ -141,6 +145,7 @@ function renderEditor() {
     });
   }
   document.getElementById("btn-gps").addEventListener("click", obtenerUbicacion);
+  document.getElementById("btn-eliminar").addEventListener("click", eliminarDesdeEditor);
   const btnMapa = document.getElementById("btn-ver-mapa");
   if (btnMapa) {
     btnMapa.addEventListener("click", () => {
@@ -218,6 +223,30 @@ function obtenerUbicacion() {
     },
     { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
+}
+
+// SCRUM-41: eliminar la caja abierta, con confirmación previa.
+async function eliminarDesdeEditor() {
+  const c = editando;
+  if (!c) return;
+  const confirmar = confirm(
+    `¿Eliminar la Caja ${pad2(c.num)}?\n\nSe borran todos sus datos (estado, alzas, miel, revisión, ubicación GPS y observaciones). Esta acción no se puede deshacer.`
+  );
+  if (!confirmar) return;
+
+  const btn = document.getElementById("btn-eliminar");
+  btn.disabled = true;
+  try {
+    await eliminarCaja(c.num);
+    const i = cajas.findIndex((x) => x.num === c.num);
+    if (i !== -1) cajas.splice(i, 1);
+    cerrarEditor();
+    renderLista();
+  } catch (err) {
+    console.error("No se pudo eliminar la caja", err);
+    alert("No se pudo eliminar la caja. Revisá tu conexión e intentá de nuevo.");
+    btn.disabled = false;
+  }
 }
 
 async function guardarEditor() {

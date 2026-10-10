@@ -97,3 +97,14 @@ async function guardarUbicacion(num, latitud, longitud, fechaISO) {
   if (!data.length) throw new Error("La caja no existe");
   return rowToCaja(data[0]);
 }
+
+// SCRUM-41: eliminar una caja por su número.
+async function eliminarCaja(num) {
+  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
+    method: "DELETE",
+    headers: sbHeaders({ Prefer: "return=representation" }),
+  });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const data = await res.json();
+  if (!data.length) throw new Error("La caja no existe");
+}

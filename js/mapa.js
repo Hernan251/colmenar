@@ -122,13 +122,15 @@ function renderMapa(focusNum) {
   renderSinGPS();
 }
 
-// Cambiar entre la lista de cajas y el mapa.
+// Cambiar entre las vistas: lista de cajas, mapa y resumen.
 function mostrarVista(vista, focusNum) {
-  document.getElementById("view-cajas").style.display = vista === "cajas" ? "" : "none";
-  document.getElementById("view-mapa").style.display = vista === "mapa" ? "" : "none";
+  ["cajas", "mapa", "resumen"].forEach((v) => {
+    document.getElementById("view-" + v).style.display = v === vista ? "" : "none";
+  });
   document.getElementById("btn-agregar").style.display = vista === "cajas" ? "" : "none";
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.vista === vista));
   if (vista === "mapa") renderMapa(focusNum);
+  if (vista === "resumen") renderResumen();
 }
 
 document.querySelectorAll(".tab").forEach((t) =>

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colmenar</title>
+<style>html,body{background:#241708;color:#F4E9D0;font-family:system-ui,sans-serif;margin:0}</style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -22,6 +22,7 @@
     <nav class="tabs">
       <button class="tab active" data-vista="cajas">Cajas</button>
       <button class="tab" data-vista="mapa">Mapa</button>
+      <button class="tab" data-vista="resumen">Resumen</button>
     </nav>
   </header>
   <main>
@@ -40,6 +41,8 @@
       <div id="mapa"></div>
       <div id="mapa-sin-gps" class="sin-gps"></div>
     </div>
+
+    <div id="view-resumen" style="display:none;"></div>
   </main>
   <button id="btn-agregar" class="fab" aria-label="Agregar caja">+</button>
 </div>
@@ -58,11 +61,30 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/supabaseClient.js"></script>
-<script src="js/cajas.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/editor.js"></script>
-<script src="js/mapa.js"></script>
-<script src="js/app.js"></script>
+<script>
+// SCRUM-40: cada carga pide los archivos con un número distinto (?v=...),
+// así el navegador y GitHub Pages nunca usan una copia vieja.
+(async function () {
+  const v = Date.now();
+  const css = document.createElement("link");
+  css.rel = "stylesheet";
+  css.href = "css/style.css?v=" + v;
+  document.head.appendChild(css);
+
+  const archivos = [
+    "js/supabaseClient.js", "js/cajas.js", "js/ui.js",
+    "js/editor.js", "js/mapa.js", "js/resumen.js", "js/app.js",
+  ];
+  for (const src of archivos) {
+    await new Promise((ok, fallo) => {
+      const s = document.createElement("script");
+      s.src = src + "?v=" + v;
+      s.onload = ok;
+      s.onerror = () => fallo(new Error("No se pudo cargar " + src));
+      document.body.appendChild(s);
+    }).catch((e) => console.error(e));
+  }
+})();
+</script>
 </body>
 </html>

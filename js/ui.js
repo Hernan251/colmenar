@@ -70,6 +70,7 @@ function renderLista() {
     cont.innerHTML = `<p class="muted">No hay cajas que coincidan con la búsqueda o el filtro.</p>`;
     return;
   }
+  const editable = puede("editar");
   const ordenadas = [...visibles].sort((a, b) => a.num - b.num);
   cont.innerHTML = ordenadas
     .map(
@@ -80,11 +81,11 @@ function renderLista() {
           ${badgeEstado(c.estado)}
           ${resumenCaja(c)}
         </div>
-        <button class="btn-editar" data-num="${c.num}">Editar datos</button>
-        <div class="caja-actions">
+        <button class="btn-editar" data-num="${c.num}">${editable ? "Editar datos" : "Ver datos"}</button>
+        ${editable ? `<div class="caja-actions">
           <button class="btn-chip ${c.estado === "Con abejas" ? "active" : ""}" data-num="${c.num}" data-estado="Con abejas">Con abejas</button>
           <button class="btn-chip ${c.estado === "Sin abejas" ? "active" : ""}" data-num="${c.num}" data-estado="Sin abejas">Sin abejas</button>
-        </div>
+        </div>` : ""}
       </div>`
     )
     .join("");
@@ -104,6 +105,7 @@ function renderLista() {
       const estado = btn.dataset.estado;
       const caja = cajas.find((c) => c.num === num);
       if (!caja || caja.estado === estado) return;
+      const copia = Object.assign({}, caja);
       caja.estado = estado;
       // Una caja sin abejas no tiene alzas ni miel.
       if (estado === "Sin abejas") {
@@ -117,7 +119,9 @@ function renderLista() {
         renderLista();
       } catch (e) {
         console.error("No se pudo guardar el estado", e);
-        avisar("No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.", "No se pudo guardar");
+        Object.assign(caja, copia);
+        avisarError(e, "No se pudo guardar el cambio. Revisá tu conexión e intentá de nuevo.", "No se pudo guardar");
+        renderLista();
       }
     });
   });
@@ -125,6 +129,7 @@ function renderLista() {
 
 // SCRUM-11: agregar una caja nueva con el siguiente número disponible.
 async function agregarCaja() {
+  if (!puede("agregar")) return;
   // SCRUM-42: se puede elegir el número; por defecto propone el primero libre.
   const num = await abrirModal({
     titulo: "Agregar caja",
@@ -152,7 +157,7 @@ async function agregarCaja() {
     if (e.message === "DUPLICADA") {
       avisar(`La caja ${pad2(num)} ya existe en la base de datos. Recargá la página para ver la lista actualizada.`);
     } else {
-      avisar("No se pudo agregar la caja. Revisá tu conexión e intentá de nuevo.", "No se pudo agregar");
+      avisarError(e, "No se pudo agregar la caja. Revisá tu conexión e intentá de nuevo.", "No se pudo agregar");
     }
   } finally {
     btn.disabled = false;

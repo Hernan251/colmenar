@@ -34,7 +34,10 @@ function abrirEditor(caja) {
     editando.melado = "No";
     editando.miel = 0;
   }
-  document.getElementById("sheet-title").textContent = `Caja ${pad2(caja.num)}`;
+  const editable = puede("editar");
+  document.getElementById("sheet-title").textContent = `Caja ${pad2(caja.num)}${editable ? "" : " · solo lectura"}`;
+  document.getElementById("sheet-save").style.display = editable ? "" : "none";
+  document.getElementById("sheet-cancel").textContent = editable ? "Cancelar" : "Cerrar";
   renderEditor();
   document.getElementById("backdrop").classList.add("open");
   document.getElementById("sheet").classList.add("open");
@@ -48,6 +51,7 @@ function cerrarEditor() {
 
 function renderEditor() {
   const c = editando;
+  const soloLectura = !puede("editar");
   const sinAbejas = c.estado === "Sin abejas";
   const sinAlzas = (Number(c.alzas) || 0) < 1;
   const noPuedeMelar = sinAbejas || sinAlzas;
@@ -94,9 +98,9 @@ function renderEditor() {
                <div class="gps-fecha">Última ubicación registrada: ${fmtFechaHora(c.ubicacionFecha)}</div>
              </div>`
           : `<div class="gps-coords gps-vacia">Sin ubicación GPS</div>`}
-        <button type="button" id="btn-gps" class="btn-gps" ${gpsBuscando ? "disabled" : ""}>
+        ${soloLectura ? "" : `<button type="button" id="btn-gps" class="btn-gps" ${gpsBuscando ? "disabled" : ""}>
           ${gpsBuscando ? "Obteniendo ubicación…" : tieneGPS(c) ? "📍 Actualizar ubicación" : "📍 Obtener ubicación"}
-        </button>
+        </button>`}
         ${tieneGPS(c) ? `<button type="button" id="btn-ver-mapa" class="btn-mapa">🗺️ Ver en mapa</button>` : ""}
         ${gpsMsg ? `<div class="gps-msg ${gpsMsg.tipo}">${gpsMsg.texto}</div>` : ""}
       </div>
@@ -107,9 +111,9 @@ function renderEditor() {
       <textarea id="f-obs" placeholder="Reina nueva, colonia débil, se agregó alimento…">${c.observaciones || ""}</textarea>
     </div>
 
-    <div class="campo zona-eliminar">
+    ${puede("eliminar") ? `<div class="campo zona-eliminar">
       <button type="button" id="btn-eliminar" class="btn-eliminar">🗑️ Eliminar esta caja</button>
-    </div>
+    </div>` : ""}
   `;
 
   if (!sinAbejas) {
@@ -144,8 +148,10 @@ function renderEditor() {
       editando.miel = v === "" ? 0 : Number(v);
     });
   }
-  document.getElementById("btn-gps").addEventListener("click", obtenerUbicacion);
-  document.getElementById("btn-eliminar").addEventListener("click", eliminarDesdeEditor);
+  const btnGps = document.getElementById("btn-gps");
+  if (btnGps) btnGps.addEventListener("click", obtenerUbicacion);
+  const btnEliminar = document.getElementById("btn-eliminar");
+  if (btnEliminar) btnEliminar.addEventListener("click", eliminarDesdeEditor);
   const btnMapa = document.getElementById("btn-ver-mapa");
   if (btnMapa) {
     btnMapa.addEventListener("click", () => {
@@ -156,6 +162,13 @@ function renderEditor() {
   }
   document.getElementById("f-revision").addEventListener("change", (e) => (editando.fechaRevision = e.target.value));
   document.getElementById("f-obs").addEventListener("input", (e) => (editando.observaciones = e.target.value));
+
+  // SCRUM-49: con rol de solo lectura se puede mirar todo, pero no modificar nada.
+  if (soloLectura) {
+    document
+      .querySelectorAll("#sheet-body input, #sheet-body textarea, #sheet-body .seg-btn, #alzas-menos, #alzas-mas")
+      .forEach((el) => (el.disabled = true));
+  }
 }
 
 function tieneGPS(c) {
@@ -164,7 +177,7 @@ function tieneGPS(c) {
 
 // SCRUM-18/19/20/22/23/24/25: obtener la ubicación solo cuando se toca el botón.
 function obtenerUbicacion() {
-  if (gpsBuscando || !editando) return;
+  if (gpsBuscando || !editando || !puede("editar")) return;
 
   if (!("geolocation" in navigator)) {
     gpsMsg = { tipo: "error", texto: "Este navegador no permite obtener la ubicación. Probá con Chrome o Safari actualizado." };
@@ -205,7 +218,8 @@ function obtenerUbicacion() {
         renderLista();
       } catch (e) {
         console.error("No se pudo guardar la ubicación", e);
-        gpsMsg = { tipo: "error", texto: "Se obtuvo la ubicación pero no se pudo guardar. Revisá tu conexión e intentá de nuevo." };
+        const t = textoError(e, "Se obtuvo la ubicación pero no se pudo guardar. Revisá tu conexión e intentá de nuevo.");
+        gpsMsg = t ? { tipo: "error", texto: t } : null;
       }
       gpsBuscando = false;
       if (editando) renderEditor();
@@ -228,7 +242,7 @@ function obtenerUbicacion() {
 // SCRUM-41: eliminar la caja abierta, con confirmación previa.
 async function eliminarDesdeEditor() {
   const c = editando;
-  if (!c) return;
+  if (!c || !puede("eliminar")) return;
   const confirmar = await confirmarModal(
     `Eliminar la Caja ${pad2(c.num)}`,
     "Se borran todos sus datos (estado, alzas, miel, revisión, ubicación GPS y observaciones). Esta acción no se puede deshacer.",
@@ -247,14 +261,14 @@ async function eliminarDesdeEditor() {
     renderLista();
   } catch (err) {
     console.error("No se pudo eliminar la caja", err);
-    avisar("No se pudo eliminar la caja. Revisá tu conexión e intentá de nuevo.");
+    avisarError(err, "No se pudo eliminar la caja. Revisá tu conexión e intentá de nuevo.");
     btn.disabled = false;
   }
 }
 
 async function guardarEditor() {
   const c = editando;
-  if (!c) return;
+  if (!c || !puede("editar")) return;
 
   // Una caja sin abejas no tiene alzas ni miel.
   if (c.estado === "Sin abejas") {
@@ -281,7 +295,7 @@ async function guardarEditor() {
     renderLista();
   } catch (e) {
     console.error("No se pudo guardar la caja", e);
-    avisar("No se pudo guardar. Revisá tu conexión e intentá de nuevo.");
+    avisarError(e, "No se pudo guardar. Revisá tu conexión e intentá de nuevo.");
   } finally {
     btn.disabled = false;
   }

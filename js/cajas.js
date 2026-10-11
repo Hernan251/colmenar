@@ -61,14 +61,14 @@ async function listarCajas() {
 
 // SCRUM-11 / SCRUM-12: crear o actualizar una caja (upsert por número).
 async function guardarCaja(caja) {
-  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}?on_conflict=num`, {
+  const res = await fetchAuth(`${SUPABASE_URL}/${TABLE_COLMENAS}?on_conflict=num`, {
     method: "POST",
     headers: sbHeaders({
       Prefer: "resolution=merge-duplicates,return=representation",
     }),
     body: JSON.stringify([cajaToRow(caja)]),
   });
-  if (!res.ok) throw new Error("HTTP " + res.status);
+  chequearRespuesta(res);
   const data = await res.json();
   return rowToCaja(data[0]);
 }
@@ -82,7 +82,7 @@ function proximoNumero(cajas) {
 // SCRUM-20 / SCRUM-23: guardar (o actualizar) solo las coordenadas GPS de una caja.
 // Se usa PATCH para no pisar otros datos que estén sin guardar en el editor.
 async function guardarUbicacion(num, latitud, longitud, fechaISO) {
-  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
+  const res = await fetchAuth(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
     method: "PATCH",
     headers: sbHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify({
@@ -92,32 +92,32 @@ async function guardarUbicacion(num, latitud, longitud, fechaISO) {
       updated_at: new Date().toISOString(),
     }),
   });
-  if (!res.ok) throw new Error("HTTP " + res.status);
+  chequearRespuesta(res);
   const data = await res.json();
-  if (!data.length) throw new Error("La caja no existe");
+  if (!data.length) throw new Error("SIN_PERMISO_O_INEXISTENTE");
   return rowToCaja(data[0]);
 }
 
 // SCRUM-41: eliminar una caja por su número.
 async function eliminarCaja(num) {
-  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
+  const res = await fetchAuth(`${SUPABASE_URL}/${TABLE_COLMENAS}?num=eq.${num}`, {
     method: "DELETE",
     headers: sbHeaders({ Prefer: "return=representation" }),
   });
-  if (!res.ok) throw new Error("HTTP " + res.status);
+  chequearRespuesta(res);
   const data = await res.json();
-  if (!data.length) throw new Error("La caja no existe");
+  if (!data.length) throw new Error("SIN_PERMISO_O_INEXISTENTE");
 }
 
 // SCRUM-42: crear una caja nueva SIN pisar una existente (si el número ya está en uso, falla).
 async function crearCaja(caja) {
-  const res = await fetch(`${SUPABASE_URL}/${TABLE_COLMENAS}`, {
+  const res = await fetchAuth(`${SUPABASE_URL}/${TABLE_COLMENAS}`, {
     method: "POST",
     headers: sbHeaders({ Prefer: "return=representation" }),
     body: JSON.stringify([cajaToRow(caja)]),
   });
   if (res.status === 409) throw new Error("DUPLICADA");
-  if (!res.ok) throw new Error("HTTP " + res.status);
+  chequearRespuesta(res);
   const data = await res.json();
   return rowToCaja(data[0]);
 }
@@ -128,4 +128,28 @@ function primerNumeroLibre(lista) {
   let n = 1;
   while (usados.has(n)) n++;
   return n;
+}
+
+// ---------- manejo de errores de red (SCRUM-49 / SCRUM-50) ----------
+
+// El servidor responde 403 cuando el rol no tiene permiso para la acción,
+// y 409 cuando se intenta crear una caja con un número que ya existe.
+function chequearRespuesta(res) {
+  if (res.status === 403) throw new Error("SIN_PERMISO");
+  if (res.status === 409) throw new Error("DUPLICADA");
+  if (!res.ok) throw new Error("HTTP " + res.status);
+}
+
+// Texto para mostrar según el error; null = no mostrar nada (ya se volvió al ingreso).
+function textoError(e, porDefecto) {
+  if (e && e.message === "SESION") return null;
+  if (e && (e.message === "SIN_PERMISO" || e.message === "SIN_PERMISO_O_INEXISTENTE")) {
+    return "No se pudo completar: tu rol no tiene permiso para hacer esto, o la caja ya no existe.";
+  }
+  return porDefecto;
+}
+
+function avisarError(e, porDefecto, titulo) {
+  const texto = textoError(e, porDefecto);
+  if (texto) avisar(texto, titulo);
 }

@@ -127,15 +127,18 @@ function renderMapa(focusNum) {
   renderSinGPS();
 }
 
-// Cambiar entre las vistas: lista de cajas, mapa y resumen.
+// Cambiar entre las vistas: lista de cajas, mapa, resumen y usuarios.
 function mostrarVista(vista, focusNum) {
-  ["cajas", "mapa", "resumen"].forEach((v) => {
-    document.getElementById("view-" + v).style.display = v === vista ? "" : "none";
+  ["cajas", "mapa", "resumen", "usuarios"].forEach((v) => {
+    const el = document.getElementById("view-" + v);
+    if (el) el.style.display = v === vista ? "" : "none";
   });
-  document.getElementById("btn-agregar").style.display = vista === "cajas" ? "" : "none";
+  // El botón "+" solo aparece en la lista de cajas y si el rol puede agregar.
+  document.getElementById("btn-agregar").style.display = vista === "cajas" && puede("agregar") ? "" : "none";
   document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.vista === vista));
   if (vista === "mapa") renderMapa(focusNum);
   if (vista === "resumen") renderResumen();
+  if (vista === "usuarios") cargarUsuarios();
 }
 
 document.querySelectorAll(".tab").forEach((t) =>

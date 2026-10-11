@@ -317,3 +317,24 @@ main { padding: 16px 20px 90px; max-width: 480px; margin: 0 auto; }
 .modal-cancelar { background: #3D2A12; color: var(--text-muted); }
 @keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes modal-pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ---- Ingreso y usuarios (SCRUM-45..49) ---- */
+.login-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.login-form input { background: #3D2A12; border: 1px solid #4A331A80; color: var(--text); border-radius: 12px; padding: 13px 14px; font-size: 16px; font-family: inherit; }
+.login-form input:focus { outline: 2px solid var(--honey); outline-offset: 1px; }
+.login-form .btn-save { padding: 13px 0; }
+.login-form .gps-msg { text-align: left; }
+
+.header-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.usuario-barra { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.usuario-correo { font-size: 11.5px; color: var(--text-muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usuario-barra .pill-honey { margin-left: 0; white-space: nowrap; }
+.btn-salir { background: transparent; border: 1px solid #4A331A; color: var(--text-muted); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+.nota-usuarios p { margin: 0 0 12px; line-height: 1.5; }
+.lista-usuarios { display: flex; flex-direction: column; gap: 10px; }
+.usuario-card { background: var(--surface); border: 1px solid #4A331A80; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.usuario-datos { min-width: 0; }
+.usuario-email { font-size: 14px; font-weight: 600; word-break: break-all; }
+.select-rol { background: #3D2A12; color: var(--text); border: 1px solid #4A331A80; border-radius: 10px; padding: 9px 8px; font-size: 13px; font-family: inherit; flex-shrink: 0; }
+.select-rol:disabled { opacity: 0.5; }

@@ -16,13 +16,32 @@
   <p id="status" class="muted"></p>
 </div>
 
+<div id="login" class="status-screen" style="display:none;">
+  <h1>🐝 Colmenapp</h1>
+  <p class="muted">Ingresá con tu correo y contraseña.</p>
+  <form id="form-login" class="login-form">
+    <input id="login-email" type="email" placeholder="Correo" autocomplete="username" required>
+    <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+    <button id="login-btn" type="submit" class="btn-save">Ingresar</button>
+    <div id="login-error" class="gps-msg error" style="display:none;"></div>
+  </form>
+</div>
+
 <div id="app" class="app" style="display:none;">
   <header class="app-header">
-    <h1>🐝 Colmenapp</h1>
+    <div class="header-fila">
+      <h1>🐝 Colmenapp</h1>
+      <div class="usuario-barra">
+        <span id="usuario-email" class="usuario-correo"></span>
+        <span id="usuario-rol" class="pill pill-honey"></span>
+        <button id="btn-salir" class="btn-salir" type="button">Salir</button>
+      </div>
+    </div>
     <nav class="tabs">
       <button class="tab active" data-vista="cajas">Cajas</button>
       <button class="tab" data-vista="mapa">Mapa</button>
       <button class="tab" data-vista="resumen">Resumen</button>
+      <button class="tab" data-vista="usuarios" style="display:none;">Usuarios</button>
     </nav>
   </header>
   <main>
@@ -43,6 +62,8 @@
     </div>
 
     <div id="view-resumen" style="display:none;"></div>
+
+    <div id="view-usuarios" style="display:none;"></div>
   </main>
   <button id="btn-agregar" class="fab" aria-label="Agregar caja">+</button>
 </div>
@@ -72,8 +93,8 @@
   document.head.appendChild(css);
 
   const archivos = [
-    "js/supabaseClient.js", "js/cajas.js", "js/modal.js", "js/ui.js",
-    "js/editor.js", "js/mapa.js", "js/resumen.js", "js/app.js",
+    "js/supabaseClient.js", "js/auth.js", "js/cajas.js", "js/modal.js", "js/ui.js",
+    "js/editor.js", "js/mapa.js", "js/resumen.js", "js/usuarios.js", "js/app.js",
   ];
   for (const src of archivos) {
     await new Promise((ok, fallo) => {

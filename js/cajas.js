@@ -153,3 +153,8 @@ function avisarError(e, porDefecto, titulo) {
   const texto = textoError(e, porDefecto);
   if (texto) avisar(texto, titulo);
 }
+
+// SCRUM-59: enlace que abre la app de mapas del celular con la caja como destino.
+function urlComoLlegar(caja) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${caja.latitud},${caja.longitud}&travelmode=driving`;
+}

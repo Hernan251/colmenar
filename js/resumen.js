@@ -107,5 +107,14 @@ function renderResumen() {
       ${filaBarra("Sin abejas", r.sinAbejas, r.total, "#B9A47C", ` / ${r.total}`)}
       ${r.sinEstado ? filaBarra("Sin estado marcado", r.sinEstado, r.total, "var(--honey)", ` / ${r.total}`) : ""}
     </div>
+
+    ${puede("exportar") ? `<div class="panel panel-respaldo">
+      <h3>Copia de seguridad</h3>
+      <p class="muted">Descargá todas las cajas en un archivo que se abre con Excel. Conviene hacerlo cada tanto: es tu respaldo por si algo se pierde.</p>
+      <button type="button" id="btn-exportar" class="btn-mapa">⬇️ Descargar copia (Excel)</button>
+    </div>` : ""}
   `;
+
+  const btnExportar = document.getElementById("btn-exportar");
+  if (btnExportar) btnExportar.addEventListener("click", exportarCajas);
 }

@@ -101,7 +101,8 @@ function renderEditor() {
         ${soloLectura ? "" : `<button type="button" id="btn-gps" class="btn-gps" ${gpsBuscando ? "disabled" : ""}>
           ${gpsBuscando ? "Obteniendo ubicación…" : tieneGPS(c) ? "📍 Actualizar ubicación" : "📍 Obtener ubicación"}
         </button>`}
-        ${tieneGPS(c) ? `<button type="button" id="btn-ver-mapa" class="btn-mapa">🗺️ Ver en mapa</button>` : ""}
+        ${tieneGPS(c) ? `<button type="button" id="btn-ver-mapa" class="btn-mapa">🗺️ Ver en mapa</button>
+        <a id="btn-como-llegar" class="btn-mapa" href="${urlComoLlegar(c)}" target="_blank" rel="noopener">🧭 Cómo llegar</a>` : ""}
         ${gpsMsg ? `<div class="gps-msg ${gpsMsg.tipo}">${gpsMsg.texto}</div>` : ""}
       </div>
     </div>

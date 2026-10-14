@@ -49,11 +49,38 @@ function pad2(n) {
   return String(n).padStart(2, "0");
 }
 
-// SCRUM-17: coincide con el filtro de estado elegido.
+// SCRUM-17 / SCRUM-58: filtros de la lista.
+// "Necesitan revisión" y "Sin fecha" usan los mismos criterios que el Resumen,
+// así las cantidades coinciden (diasDesde y DIAS_REVISION_RECIENTE están en resumen.js).
+const FILTROS = {
+  todas: () => true,
+  con: (c) => c.estado === "Con abejas",
+  sin: (c) => c.estado === "Sin abejas",
+  meladas: (c) => c.melado === "Sí",
+  necesitan: (c) => {
+    const d = diasDesde(c.fechaRevision);
+    return d !== null && d > DIAS_REVISION_RECIENTE;
+  },
+  sinfecha: (c) => diasDesde(c.fechaRevision) === null,
+};
+
 function coincideFiltro(c) {
-  if (filtro === "con") return c.estado === "Con abejas";
-  if (filtro === "sin") return c.estado === "Sin abejas";
-  return true;
+  return (FILTROS[filtro] || FILTROS.todas)(c);
+}
+
+// Muestra en cada filtro cuántas cajas tiene (sin contar el texto del buscador).
+function actualizarContadoresFiltros() {
+  document.querySelectorAll(".chip-filtro").forEach((b) => {
+    const f = FILTROS[b.dataset.f];
+    if (!f) return;
+    let n = b.querySelector(".chip-n");
+    if (!n) {
+      n = document.createElement("span");
+      n.className = "chip-n";
+      b.appendChild(n);
+    }
+    n.textContent = cajas.filter(f).length;
+  });
 }
 
 // SCRUM-17: coincide con el texto buscado (número o ubicación).
@@ -98,6 +125,7 @@ function badgeEstado(estado) {
 }
 
 function renderLista() {
+  actualizarContadoresFiltros();
   const cont = document.getElementById("lista-cajas");
   if (!cajas.length) {
     cont.innerHTML = `<p class="muted">Todavía no hay cajas registradas. Agregá la primera con el botón "+".</p>`;

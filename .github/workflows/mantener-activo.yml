@@ -1,0 +1,28 @@
+# Mantiene activa la base de datos de Supabase.
+# El plan gratuito pausa el proyecto después de una semana sin actividad:
+# esta tarea hace una consulta cada 3 días para que eso no pase.
+# Si la consulta falla (por ejemplo, el proyecto ya está pausado), la tarea
+# queda en rojo y GitHub te avisa por correo.
+
+name: Mantener activa la base de datos
+
+on:
+  schedule:
+    - cron: "0 12 */3 * *"   # cada 3 días, a las 12:00 UTC
+  workflow_dispatch:          # permite lanzarla a mano desde la pestaña Actions
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar la base de datos
+        run: |
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: sb_publishable_a3Dg6N53DGLENGNkVqhnsg_xVrELvg-" \
+            "https://jxvqeqgigicdsubhfbny.supabase.co/rest/v1/colmenas?select=num&limit=1")
+          echo "Código de respuesta: $codigo"
+          if [ "$codigo" -lt 200 ] || [ "$codigo" -ge 300 ]; then
+            echo "La base de datos no respondió bien. Puede estar pausada: entrá al panel de Supabase y reactivala."
+            exit 1
+          fi
+          echo "La base de datos está activa."

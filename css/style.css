@@ -141,7 +141,9 @@ main { padding: 16px 20px 90px; max-width: 960px; margin: 0 auto; }
 .buscador::placeholder { color: var(--text-muted); }
 .buscador:focus { outline: 2px solid var(--honey); outline-offset: 1px; }
 
-.filtros { display: flex; gap: 8px; margin-bottom: 14px; }
+/* Fila de filtros: si no entran todos en el celular, se desliza con el dedo. */
+.filtros { display: flex; flex-wrap: nowrap; gap: 8px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.filtros::-webkit-scrollbar { display: none; }
 
 .chip-filtro {
   background: var(--surface);
@@ -369,3 +371,11 @@ main { padding: 16px 20px 90px; max-width: 960px; margin: 0 auto; }
   .usuario-correo { display: none; }
   .header-fila h1 { font-size: 20px; }
 }
+
+/* ---- Sprint 9: filtros con cantidad, Cómo llegar y copia de seguridad ---- */
+.chip-filtro { flex: 0 0 auto; white-space: nowrap; }
+.chip-n { margin-left: 6px; font-weight: 700; opacity: 0.7; }
+a.btn-mapa { display: block; text-align: center; text-decoration: none; }
+.popup-link { display: inline-block; margin-top: 6px; font-weight: 700; color: #8a5a00; text-decoration: none; }
+.panel-respaldo p { margin: 0 0 12px; line-height: 1.5; }
+.panel-respaldo .btn-mapa { width: 100%; }

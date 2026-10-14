@@ -8,8 +8,8 @@ const CLAVE_SESION = "colmenapp_sesion";
 
 // SCRUM-47: qué puede hacer cada rol.
 const PERMISOS = {
-  administrador: ["ver", "agregar", "editar", "eliminar", "usuarios"],
-  apicultor: ["ver", "agregar", "editar"],
+  administrador: ["ver", "agregar", "editar", "eliminar", "usuarios", "exportar"],
+  apicultor: ["ver", "agregar", "editar", "exportar"],
   lectura: ["ver"],
 };
 const NOMBRE_ROL = {

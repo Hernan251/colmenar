@@ -46,6 +46,7 @@ function popupCaja(c) {
       <div>Alzas: <b>${c.alzas || 0}</b></div>
       <div>Última revisión: <b>${fmtFecha(c.fechaRevision)}</b></div>
       <div>📍 ${c.latitud.toFixed(6)}, ${c.longitud.toFixed(6)}</div>
+      <a class="popup-link" href="${urlComoLlegar(c)}" target="_blank" rel="noopener">🧭 Cómo llegar</a>
     </div>`;
 }
 

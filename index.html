@@ -61,6 +61,9 @@
       <button class="chip-filtro active" data-f="todas">Todas</button>
       <button class="chip-filtro" data-f="con">Con abejas</button>
       <button class="chip-filtro" data-f="sin">Sin abejas</button>
+      <button class="chip-filtro" data-f="meladas">Ya meladas</button>
+      <button class="chip-filtro" data-f="necesitan">Necesitan revisión</button>
+      <button class="chip-filtro" data-f="sinfecha">Sin fecha de revisión</button>
     </div>
     <div id="lista-cajas" class="lista-cajas"></div>
     </div>
@@ -104,7 +107,7 @@
 
   const archivos = [
     "js/supabaseClient.js", "js/auth.js", "js/cajas.js", "js/modal.js", "js/ui.js",
-    "js/editor.js", "js/mapa.js", "js/resumen.js", "js/usuarios.js", "js/app.js",
+    "js/editor.js", "js/mapa.js", "js/resumen.js", "js/exportar.js", "js/usuarios.js", "js/app.js",
   ];
   for (const src of archivos) {
     await new Promise((ok, fallo) => {

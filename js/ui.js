@@ -7,6 +7,44 @@ let cajas = [];
 let busqueda = "";
 let filtro = "todas";
 
+// SCRUM-52: vista de las cajas, cuadriculada ("grid") o lineal ("lista").
+// Se recuerda en el dispositivo; por defecto, lineal.
+const CLAVE_VISTA_CAJAS = "colmenapp_vista_cajas";
+const VISTAS_CAJAS = ["grid", "lista"];
+
+function leerVistaCajas() {
+  try {
+    const v = localStorage.getItem(CLAVE_VISTA_CAJAS);
+    return VISTAS_CAJAS.includes(v) ? v : "lista";
+  } catch (e) {
+    return "lista";
+  }
+}
+
+let vistaCajas = leerVistaCajas();
+
+// Solo cambia clases (CSS): no vuelve a pedir datos ni a armar la lista.
+function aplicarVistaCajas() {
+  const lista = document.getElementById("lista-cajas");
+  const vista = document.getElementById("view-cajas");
+  lista.classList.toggle("grid", vistaCajas === "grid");
+  lista.classList.toggle("lista", vistaCajas === "lista");
+  vista.classList.toggle("modo-grid", vistaCajas === "grid");
+  vista.classList.toggle("modo-lista", vistaCajas === "lista");
+  document.querySelectorAll(".btn-vista").forEach((b) => {
+    const activo = b.dataset.modo === vistaCajas;
+    b.classList.toggle("active", activo);
+    b.setAttribute("aria-pressed", activo ? "true" : "false");
+  });
+}
+
+function cambiarVistaCajas(modo) {
+  if (!VISTAS_CAJAS.includes(modo) || modo === vistaCajas) return;
+  vistaCajas = modo;
+  try { localStorage.setItem(CLAVE_VISTA_CAJAS, modo); } catch (e) { /* sin almacenamiento: no se recuerda */ }
+  aplicarVistaCajas();
+}
+
 function pad2(n) {
   return String(n).padStart(2, "0");
 }

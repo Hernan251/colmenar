@@ -80,6 +80,12 @@ function conectarEventos() {
   document.getElementById("form-login").addEventListener("submit", enviarLogin);
   document.getElementById("btn-salir").addEventListener("click", cerrarSesion);
 
+  // SCRUM-52: botones para cambiar entre vista cuadriculada y lineal.
+  document.querySelectorAll(".btn-vista").forEach((b) =>
+    b.addEventListener("click", () => cambiarVistaCajas(b.dataset.modo))
+  );
+  aplicarVistaCajas();
+
   // SCRUM-17: buscar y filtrar cajas.
   document.getElementById("buscador").addEventListener("input", (e) => {
     busqueda = e.target.value;

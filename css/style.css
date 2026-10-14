@@ -64,7 +64,9 @@ html, body {
 }
 .app-header h1 { margin: 0; font-size: 22px; }
 
-main { padding: 16px 20px 90px; max-width: 480px; margin: 0 auto; }
+main { padding: 16px 20px 90px; max-width: 960px; margin: 0 auto; }
+/* Todas las vistas mantienen su ancho de siempre, salvo la cuadrícula, que se ensancha en pantallas grandes. */
+#view-cajas.modo-lista, #view-mapa, #view-resumen, #view-usuarios { max-width: 480px; margin-left: auto; margin-right: auto; }
 
 .lista-cajas { display: flex; flex-direction: column; gap: 10px; }
 
@@ -338,3 +340,32 @@ main { padding: 16px 20px 90px; max-width: 480px; margin: 0 auto; }
 .usuario-email { font-size: 14px; font-weight: 600; word-break: break-all; }
 .select-rol { background: #3D2A12; color: var(--text); border: 1px solid #4A331A80; border-radius: 10px; padding: 9px 8px; font-size: 13px; font-family: inherit; flex-shrink: 0; }
 .select-rol:disabled { opacity: 0.5; }
+
+/* ---- Cambio de vista: cuadrícula / lista (SCRUM-52) ---- */
+.barra-busqueda { display: flex; gap: 8px; margin-bottom: 10px; align-items: stretch; }
+.barra-busqueda .buscador { flex: 1; min-width: 0; width: auto; margin-bottom: 0; }
+.toggle-vista { display: flex; gap: 3px; flex-shrink: 0; background: var(--surface); border: 1px solid #4A331A80; border-radius: 12px; padding: 3px; }
+.btn-vista { width: 38px; display: flex; align-items: center; justify-content: center; padding: 0; border: none; border-radius: 9px; background: transparent; color: var(--text-muted); cursor: pointer; }
+.btn-vista svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-vista.active { background: var(--honey); color: #241708; }
+.btn-vista:focus-visible { outline: 2px solid var(--honey); outline-offset: 1px; }
+
+/* Vista cuadriculada: varias cajas por fila, tarjetas más compactas. */
+.lista-cajas.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lista-cajas.grid > .muted { grid-column: 1 / -1; }
+.lista-cajas.grid .caja-card { padding: 12px; gap: 8px; }
+.lista-cajas.grid .caja-num { font-size: 15px; }
+.lista-cajas.grid .caja-info .pill { margin: 0 4px 4px 0; }
+.lista-cajas.grid .caja-datos { flex-direction: column; gap: 2px; }
+.lista-cajas.grid .caja-obs { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lista-cajas.grid .caja-actions { flex-direction: column; }
+@media (min-width: 640px) { .lista-cajas.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .lista-cajas.grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Retoques: botones alineados abajo en la cuadrícula y encabezado más limpio en el celular. */
+.lista-cajas.grid .btn-editar { margin-top: auto; }
+.header-fila h1 { white-space: nowrap; }
+@media (max-width: 520px) {
+  .usuario-correo { display: none; }
+  .header-fila h1 { font-size: 20px; }
+}

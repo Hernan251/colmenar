@@ -46,7 +46,17 @@
   </header>
   <main>
     <div id="view-cajas">
-    <input id="buscador" class="buscador" type="text" placeholder="Buscar caja o ubicación…">
+    <div class="barra-busqueda">
+      <input id="buscador" class="buscador" type="text" placeholder="Buscar caja o ubicación…">
+      <div class="toggle-vista" role="group" aria-label="Cambiar la vista de las cajas">
+        <button type="button" class="btn-vista" data-modo="grid" title="Vista cuadriculada" aria-label="Vista cuadriculada" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </button>
+        <button type="button" class="btn-vista" data-modo="lista" title="Vista lineal" aria-label="Vista lineal" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
     <div class="filtros">
       <button class="chip-filtro active" data-f="todas">Todas</button>
       <button class="chip-filtro" data-f="con">Con abejas</button>
